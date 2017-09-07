@@ -1,7 +1,17 @@
 #!/bin/bash
 # chmod u+x
 
-
+#
+# Creates the apache config file at /etc/apache2/sites-available/
+# Creates the symbolic link at /etc/sites-enabled/
+# File name is based on domain.
+#
+# Includes argument for protocol (http/https)
+# Includes redirect for http to https
+# ELB healthcheck compatible
+# Includes argument for apex redirect for www and non-www domains
+# Includes option to define protocol
+#
 function create_apache {
 
 	DOMAIN=$1
@@ -53,14 +63,14 @@ function create_apache {
 
 	if [[ $SUBDOMAIN != "" ]] ; then
 		output "Adding apex redirect"
-		echo ""                     >> $CONFIG
+		echo ""                                                           >> $CONFIG
 		echo "    RewriteCond %{HTTP_HOST} !$DOMAIN$ [NC]"                >> $CONFIG
 		echo "    RewriteRule (.*) $PROTOCOL://$DOMAIN\$1 [L,R=301]"      >> $CONFIG
 	fi
 		
 	if [[ $PROTOCOL == "https" ]] ; then
 		output "Adding https redirect"
-		echo ""                     >> $CONFIG
+		echo ""                                                              >> $CONFIG
 		echo "    RewriteCond %{HTTP:X-Forwarded-Proto} !https"              >> $CONFIG
 		echo "    RewriteCond $1 !^(loadbalancer.txt)"                       >> $CONFIG
 		echo "    RewriteCond %{HTTP_USER_AGENT} !^ELB-HealthChecker"        >> $CONFIG
@@ -78,46 +88,4 @@ function create_apache {
 	echo "    ErrorLog /srv/www/$DOMAIN/logs/error.log"            >> $CONFIG
 	echo "    CustomLog /srv/www/$DOMAIN/logs/access.log combined" >> $CONFIG
 	echo "</VirtualHost>" >> $CONFIG
-}
-
-function create_apex_redirect {
-
-	DOMAIN=$1
-
-	PROTOCOL=$2
-
-	if [[ "$DOMAIN" = "" ]] ; then
-		error "create_apache_redirect(): No DOMAIN"
-	fi
-
-	if echo "$DOMAIN" | grep -q "www" ; then
-		SUBDOMAIN=${DOMAIN#"www."}
-	else
-  		error "DOMAIN requires www for APEX Redirect: $DOMAIN";
-	fi
-
-	CONFIG="/etc/apache2/sites-available/$SUBDOMAIN.conf"
-
-		if [ ! -f $CONFIG ] ; then
-
-		output "Adding apex apache config: $SUBDOMAIN"
-
-		touch $CONFIG
-		ln -s /etc/apache2/sites-available/$SUBDOMAIN.conf /etc/apache2/sites-enabled/$SUBDOMAIN.conf
-
-		#Create 
-		echo "<VirtualHost *:80>"         >> $CONFIG
-		echo "    ServerName $SUBDOMAIN"  >> $CONFIG
-		echo "    ServerAlias $SUBDOMAIN" >> $CONFIG
-
-		echo "    RewriteEngine On"                                          >> $CONFIG
-		#echo "    RewriteBase /"											 >> $CONFIG
-		echo "    RewriteCond %{HTTP_HOST} !$SUBDOMAIN$ [NC]"                >> $CONFIG
-		echo "    RewriteRule (.*) $PROTOCOL://$DOMAIN\$1 [L,R=301]"             >> $CONFIG
-
-		echo "</VirtualHost>" >> $CONFIG
-
-	else
-		warn "Apex config for $SUBDOMAIN already exists"
-	fi
 }
