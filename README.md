@@ -1,6 +1,6 @@
 # apache-boilerplate
 
-Create Apache web environments 
+Create Apache web environments and set up redirections for protocol and subdomain, intended for use on an Amazon EC2 instance behind an Amazon Elastic Load Balancer with HTTP or HTTPS enabled.
 
 ## Install
 
