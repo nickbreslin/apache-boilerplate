@@ -8,10 +8,18 @@
 # Apache 2.4.18
 
 #
+# directs:
+#    - http://domain
+#    - https://domain
+#    - http://www.domain
+#
+# ...to https://www.domain
+#
+# Example
 # sudo bash create.sh www.booshlin.com https true
-#  -- creates environment for www.booshlin.com
-#  -- enables https redirect for primary environment
-#  -- 
+#
+# sudo bash create nosubdomain.com
+# sudo bash create securedomain.com https
 #
 
 #
@@ -25,8 +33,9 @@ source "$DIR/lib/dir.sh"
 source "$DIR/lib/apache.sh"
 
 output
-info "Apache boilerplate"
+info "Running apache boilerplate"
 output
+
 #
 # Script arguments
 #
@@ -36,7 +45,7 @@ output ${PARAMS[*]}
 
 DOMAIN=${PARAMS[0]}   # domain without protocol
 PROTOCOL=${PARAMS[1]}  # http | https
-APEX=${PARAMS[2]}  # should redirect apex (non-www) to this subdomain (www)
+APEX=${PARAMS[2]}  # true|false should redirect apex (non-www) to this subdomain (www)
 DOCROOT=${PARAMS[3]}   # define doc root other than /html/
 
 
