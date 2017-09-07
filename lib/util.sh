@@ -1,6 +1,9 @@
 #!/bin/bash
 # chmod u+x
 
+#
+# Color logging for cli execution
+#
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[1;32m'

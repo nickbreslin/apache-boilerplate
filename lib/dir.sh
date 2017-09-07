@@ -1,7 +1,9 @@
 #!/bin/bash
 # chmod u+x
 
-
+#
+# Creates directory structure for web sites
+#
 function create_dir {
 
 	DOMAIN=$1
@@ -26,7 +28,9 @@ function create_dir {
 	done
 }
 
-
+#
+# Creates placeholder files until application is installed
+#
 function create_files {
 
 	DOMAIN=$1
